@@ -8,3 +8,6 @@
 	path = pathfollowing
 	url = https://github.com/dailydi2/A4VAI-PathFollowing.git
 
+[submodule "ego-planner-a4vai"]
+	path = ego-planner-a4vai
+	url = https://github.com/swan9910/ego-planner-a4vai.git
