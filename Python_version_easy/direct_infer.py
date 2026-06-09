@@ -82,7 +82,7 @@ class OnnxControllerNode(Node):
         self.declare_parameter("model_path", "")
         self.declare_parameter("vec_normalize_path", "")
         self.declare_parameter("pointcloud_topic", "/pointcloud_features")
-        self.declare_parameter("cmd_topic", "/ca_vel_2_control")
+        self.declare_parameter("cmd_topic", "/cmd_vel")
         self.declare_parameter("expected_points", 256)
 
         model_path = self.get_parameter("model_path").get_parameter_value().string_value
@@ -139,23 +139,14 @@ class OnnxControllerNode(Node):
         if n > 0:
             input_data[:n, :] = points_array[:n, :]
 
-        # Count real obstacle points (x != 0)
-        real_count = int(np.count_nonzero(input_data[:, 0]))
+        # Predict and publish Twist
+        actions = self.policy.predict(input_data)
 
         cmd = Twist()
-        if real_count < 5:
-            # No obstacle: forward only at 1.0 m/s
-            cmd.linear.x = 3.0
-            cmd.linear.y = 0.0
-            cmd.linear.z = 0.0
-            cmd.angular.z = 0.0
-        else:
-            # Obstacle detected: run inference
-            actions = self.policy.predict(input_data)
-            cmd.linear.x = float(actions[0])
-            cmd.linear.y = float(actions[1])
-            cmd.linear.z = float(actions[2])
-            cmd.angular.z = float(actions[3])
+        cmd.linear.x = float(actions[0])
+        cmd.linear.y = float(actions[1])
+        cmd.linear.z = float(actions[2])
+        cmd.angular.z = float(actions[3])
 
 
         # 로깅: 위험 장애물 위치 정보 포함
