@@ -9,3 +9,8 @@ common_interfaces
 
 *.cache
 
+
+# colcon 산출물 / 비행 로그
+build/
+install/
+logs/
